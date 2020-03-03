@@ -13,7 +13,7 @@ const webpackConfig = {
     output: {
         path: distPath,
         publicPath: './',
-        library: 'kscreenshot',
+        library: 'KScreenShot',
         libraryTarget: 'umd',
         libraryExport: 'default'
     },

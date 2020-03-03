@@ -3,6 +3,7 @@ import drawMiddleImage from './toolbar/middleImage/drawMiddleImage'
 import clearMiddleImage from './toolbar/middleImage/clearMiddleImage'
 import backRightClient from './backRightClient'
 import toolbarPosition from  './toolbar/toolbarPosition'
+import updateSizeBox from './sizeBox'
 
 export default function createDragDom (dom, dotSize, lineSize, me) {
     const lineList = [
@@ -104,8 +105,9 @@ function bindCornerEvent (name, dom, me) {
                 left: left + 'px'
             }
             css(dom, style)
-     
+
             toolbarPosition(me, width, height, top, left, me.toolbar)
+            updateSizeBox(me, width, height, top);
         }
         document.addEventListener('mouseup', mouseupEvent)
 
@@ -173,8 +175,10 @@ function bindSurroundEvent (type, name, dom, me) {
             toolbarPosition(me, width, height, top, left, me.toolbar)
             if (type === 'horizontal') {
                 toolbarPosition(me, width, me.height, me.startY, left, me.toolbar)
+                updateSizeBox(me, width, height, top);
             } else if (type === 'vertical') {
                 toolbarPosition(me, me.width, height, top, me.left, me.toolbar)
+                updateSizeBox(me, width, height, top);
             }
         }
 

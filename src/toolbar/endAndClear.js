@@ -2,10 +2,12 @@ import { remove, removeClass } from '../util'
 
 export default function endAndClear (me) {
     removeClass(document.body, 'kssBody')
-    
+
+    me.mask && remove(me.mask)
     me.kss && remove(me.kss)
     me.kssScreenShotWrapper && remove(me.kssScreenShotWrapper)
     me.style && remove(me.style)
+    me.mask = null
     me.kss = null
     me.rectangleCanvas = null
     me.kssTextLayer = null

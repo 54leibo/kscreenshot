@@ -1,6 +1,7 @@
 import { css, typeChecking } from '../util'
 
 import completeBT from './tool/completeBT'
+import saveBT from './tool/saveBT'
 import quitBT from './tool/quitBT'
 import arrowBT from './tool/arrowBT'
 import backBT from './tool/backBT'
@@ -18,6 +19,11 @@ const toolConfig = [
         component: completeBT,
         show: 'complete',
         width: 40
+    },
+    {
+        component: saveBT,
+        show: 'save',
+        width: 30
     },
     {
         component: quitBT,
@@ -64,12 +70,12 @@ const toolConfig = [
 export default function createToolbar (me) {
     let toolbar = document.createElement('div')
     toolbar.id = 'kssToolbar'
-    
+
     if (typeChecking(me.toolShow) !== '[object Object]') {
         me.toolShow = {}
     }
     let toolbarWidth = 0
-    
+
     toolConfig.forEach((it) => {
         if (me.toolShow[it.show] !== false) {
             toolbar.appendChild(it.component(me))
@@ -95,7 +101,7 @@ export default function createToolbar (me) {
     // me.toolShow.ellipse !== false && toolbar.appendChild(ellipseBT(me))
     // me.toolShow.text !== false && toolbar.appendChild(textBT(me))
     // me.toolShow.color !== false && toolbar.appendChild(colorBT(me))
-    
+
     toolbar.appendChild(toolbarMiddleArea(me))
 
     me.kssScreenShotWrapper.appendChild(toolbar)

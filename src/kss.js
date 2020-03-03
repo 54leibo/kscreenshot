@@ -8,6 +8,7 @@ import clearMiddleImage from './toolbar/middleImage/clearMiddleImage'
 import endAndClear from './toolbar/endAndClear'
 import backRightClient from './backRightClient'
 import toolbarPosition from './toolbar/toolbarPosition'
+import updateSizeBox from './sizeBox'
 import cursorImg from './assets/imgs/cursor.ico'
 import './kss.scss'
 
@@ -27,7 +28,7 @@ function initLineWidth (initLine) {
 
 let kss = (function () {
     let instance
-    
+
     //单例模式
     let kss = function (options) {
         if (instance) {
@@ -70,7 +71,7 @@ let kss = (function () {
         this.toolbarMarginTop = 5
         this.toolbarColor = '#fb3838'
         this.toolbarLineWidth = typeChecking(options.toolShow) === '[object Object]' ? initLineWidth(options.toolShow.drawLine) : 10
-        
+
 
         //工具栏事件
         this.toolmousedown = null
@@ -86,7 +87,23 @@ let kss = (function () {
         this.endCB = options.endCB
         //撤销回调
         this.cancelCB = options.cancelCB
-        
+        //保存回调
+        this.saveCB = options.saveCB
+
+        this.creatMask = () => {
+            const mask = document.createElement('div')
+            this.mask = mask;
+            addClass(mask, 'kssMask')
+            document.body.append(mask)
+            this.mask.addEventListener('mousedown', (e) => {
+                mask.removeEventListener('mousedown', this.startDrawDown)
+                mask && remove(mask)
+                this.mask = null
+
+                this.startDrawDown(e)
+            })
+        }
+
         this.startDrawDown = (e) => {
             const that = this
             document.addEventListener('mouseup', that.cancelDrawingStatus)
@@ -95,12 +112,12 @@ let kss = (function () {
             if (e.button !== 0) {
                 return
             }
-    
+
             if (that.drawingStatus !== null) {
                 return
             }
             that.drawingStatus = 1
-    
+
             that.startX = e.clientX
             that.startY = e.clientY
             //移除并添加
@@ -111,10 +128,15 @@ let kss = (function () {
             let kssTextLayer = document.createElement('div')
             kssTextLayer.id = 'kssTextLayer'
             that.kssTextLayer = kssTextLayer
+            let kssSizeBox = document.createElement('span')
+            kssSizeBox.id = 'kssSizeBox'
+            that.kssSizeBox = kssSizeBox;
 
+
+            kssScreenShotWrapper.appendChild(kssSizeBox)
             kssScreenShotWrapper.appendChild(kssTextLayer)
             document.body.appendChild(kssScreenShotWrapper)
-          
+
             document.addEventListener('mousemove', that.drawing)
             document.addEventListener('mouseup', that.endDraw)
         }
@@ -122,16 +144,23 @@ let kss = (function () {
         this.drawing = (e) => {
             const that = this
             that.drawingStatus = 2
-    
+
             let client = backRightClient(e)
             let clientX = client[0]
             let clientY = client[1]
-            
+
+            const width = Math.abs(clientX - that.startX);
+            const height = Math.abs(clientY - that.startY);
+            const top = Math.min(that.startY, clientY);
+            const left = Math.min(that.startX, clientX);
+
+            updateSizeBox(that, width, height, top);
+
             css(that.kssScreenShotWrapper, {
-                height: Math.abs(clientY - that.startY) + 'px',
-                width: Math.abs(clientX - that.startX) + 'px',
-                top: Math.min(that.startY, clientY) + 'px',
-                left: Math.min(that.startX, clientX) + 'px'
+                height: height + 'px',
+                width: width + 'px',
+                top: top + 'px',
+                left: left + 'px'
             })
         }
 
@@ -141,7 +170,7 @@ let kss = (function () {
             }
             const that = this
             that.drawingStatus = 3
-          
+
             if (that.startX === e.clientX && that.startY === e.clientY) {
                 let clientHeight = document.documentElement.clientHeight
                 let clientWidth = document.documentElement.clientWidth
@@ -166,7 +195,7 @@ let kss = (function () {
                 that.startY = Math.min(that.startY, clientY)
             }
             document.removeEventListener('mousemove', that.drawing)
-    
+
             let canvas = document.createElement('canvas')
             canvas.id = 'kssRectangleCanvas'
 
@@ -187,7 +216,7 @@ let kss = (function () {
                 function canvasMoveEvent (e) {
                     let clientHeight = document.documentElement.clientHeight
                     let clientWidth = document.documentElement.clientWidth
-              
+
                     top = that.startY + e.clientY - startY
 
                     if (that.startY + e.clientY - startY + that.height > clientHeight) {
@@ -212,10 +241,11 @@ let kss = (function () {
                         top: top + 'px',
                         left: left + 'px'
                     })
-                    
+
+                    updateSizeBox(that, that.width, that.height, top)
                     toolbarPosition(that, that.width, that.height, top, left, that.toolbar)
                 }
-    
+
                 function canvasUpEvent (e) {
                     if (top === undefined) {
                         top = that.startY
@@ -231,9 +261,8 @@ let kss = (function () {
                     drawMiddleImage(that)
                 }
             })
-            that.kss.removeEventListener('mousedown', that.startDrawDown)
             document.removeEventListener('mouseup', that.endDraw)
-    
+
             createDragDom(
                 that.kssScreenShotWrapper,
                 that.dotSize,
@@ -242,7 +271,7 @@ let kss = (function () {
             )
             let img = document.createElement('img')
             img.id = 'kssCurrentImgDom'
-   
+
             that.kssScreenShotWrapper.appendChild(img)
             that.currentImgDom = img
             drawMiddleImage(that)
@@ -261,7 +290,7 @@ let kss = (function () {
                     setTimeout(function () {
                         document.removeEventListener('contextmenu', that.preventContextMenu)
                     }, 0)
-                    
+
                     endAndClear(that)
                     that.cancelCB()
                     return
@@ -277,11 +306,11 @@ let kss = (function () {
                 that.toolmousedown = null
                 that.toolmousemove = null
                 that.toolmouseup = null
-                that.kss.addEventListener('mousedown', that.startDrawDown)
+                this.creatMask()
             }
         }
-        this.startScreenShot = () => {
-            this.start()
+        this.startScreenShot = (imageSrc) => {
+            this.start(imageSrc)
         }
         this.endScreenShot = () => {
             endAndClear(this)
@@ -293,7 +322,7 @@ let kss = (function () {
 
     kss.prototype.init = function (key, immediately) {
         const that = this
-   
+
         if (immediately === true) {
             that.start()
             that.end()
@@ -312,35 +341,55 @@ let kss = (function () {
                 that.start()
                 that.end()
             }
-        }     
+        }
     }
 
-    kss.prototype.start = function () {
+    kss.prototype.start = async function (imageSrc) {
         const that = this
         if (that.isScreenshot) {
             return
         }
         that.isScreenshot = true
-        html2canvas(document.body, {useCORS:true, scrollY:200})
-            .then((canvas) => {
-                that.kss = canvas
-                that.scrollTop = document.documentElement.scrollTop
-                canvas.id = 'kss'
-                    
-                document.body.appendChild(canvas)
 
-                addClass(document.body, 'kssBody')
-                css(canvas, {
-                    top: `-${that.scrollTop}px`
-                })
+        this.creatMask()
 
-                canvas.addEventListener('mousedown', that.startDrawDown)
-            })
+        let canvas
+        if(imageSrc) {
+          canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          const img = await new Promise((resolve) => {
+            // eslint-disable-next-line no-shadow
+            const img = new Image()
+            img.src = imageSrc
+            if (img.complete) {
+              resolve(img)
+            } else {
+              img.onload = () => resolve(img)
+            }
+          })
+
+          canvas.width = img.width
+          canvas.height = img.height
+          ctx.drawImage(img, 0, 0)
+        } else {
+          canvas = await html2canvas(document.body, {useCORS:true, scrollY:200})
+        }
+
+        that.kss = canvas
+        that.scrollTop = document.documentElement.scrollTop
+        canvas.id = 'kss'
+
+        document.body.appendChild(canvas)
+
+        addClass(document.body, 'kssBody')
+        css(canvas, {
+            top: `-${that.scrollTop}px`
+        })
     }
 
     kss.prototype.end = function () {
         const that = this
-     
+
         that.endScreenShot = function (e) {
             if (e.keyCode === 27) {
                 endAndClear(that)

@@ -1,7 +1,7 @@
 $baseColor: #488ff9;
 
 .kssBody{
-    cursor: url("./assets/imgs/cursor.ico"), auto; 
+    cursor: url("./assets/imgs/cursor.ico"), auto;
     user-select: none;
     #kss{
         position: fixed;
@@ -9,11 +9,28 @@ $baseColor: #488ff9;
         left: 0;
         z-index: 10000;
     }
+    .kssMask {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        z-index: 10001;
+    }
     #kssScreenShotWrapper{
         position: fixed;
         background: transparent;
         box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
         z-index: 10001;
+        #kssSizeBox{
+            position: absolute;
+            z-index: 100;
+            color: #fff;
+            font-size: 12px;
+            transition: top ease-out 300ms;
+            min-width: 50px;
+        }
         #kssTextLayer{
             position: absolute;
             top: 0;
