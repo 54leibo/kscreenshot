@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title></title>
+</head>
+<body  >
+<video id='vd' onload="snap()"></video>
+<input type=button value=snap onclick="snap()" />
+<script>
+
+function snap(){
+  var constraints =  {
+    video: {
+      mandatory: {
+        maxWidth: window.screen.width,
+        maxHeight: window.screen.height,
+        maxFrameRate: 30,
+        chromeMediaSource: 'screen'
+      }
+    }
+  }
+  // constraints =  {video: true, audio: true};
+  console.log(constraints);
+  navigator.getUserMedia(constraints, function(localSource){
+    console.log(localSource);
+    vd.src = webkitURL.createObjectURL(localSource);
+    vd.play();
+  },function(err){
+    console.log('error',err);
+  })
+
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+  @keyframes AA {
+    from {background-color:#488ff9;}
+    to {background-color: #bbbbbb}
+  }
+  .animation {
+    animation: AA 5s infinite;
+    width: 500px;
+    height: 1000px;
+  }
+  </style>
+</head>
+<body>
+<div class="animation"></div>
+<script src="./dist/kss.js"></script>
+<script>
+new KScreenShot({
+  key: 65,
+  needDownload: true,
+  cancelCB: () => {},
+  saveCB: (screenShot) => {
+    console.log('screenShot', screenShot)
+  },
+})
+</script>
+</body>
+</html>
