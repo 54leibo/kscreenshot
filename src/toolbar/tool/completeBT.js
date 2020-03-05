@@ -3,12 +3,12 @@ import drawMiddleImage from '../middleImage/drawMiddleImage'
 import copy from '../copy'
 import download from '../download'
 import endAndClear from '../endAndClear'
+import img from '../../assets/imgs/complete.svg'
 
 export default function completeBT (me) {
     let completeBT = document.createElement('span')
     completeBT.id = 'kssCompleteBT'
     completeBT.className = 'kssToolbarItemBT'
-    completeBT.innerHTML = '完成'
     completeBT.title = '完成截图'
 
     css(completeBT, {
@@ -16,9 +16,16 @@ export default function completeBT (me) {
         'line-height': '28px'
     })
 
+    let completeImg = document.createElement('img')
+    completeImg.className = 'kssToolbarItemImg'
+    completeImg.src = img
+    me.quitBT = completeImg
+
+    completeBT.appendChild(completeImg)
+
     completeBT.addEventListener('click', async function () {
         me.isEdit = true
-        
+
         const lastShot = me.snapshootList[me.snapshootList.length - 1]
         copy(me, lastShot)
         me.needDownload === true && (await download(me))
